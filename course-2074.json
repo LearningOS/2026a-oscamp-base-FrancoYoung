@@ -2,16 +2,16 @@
   "schema": 1,
   "courseId": 2074,
   "repository": "LearningOS/2026a-oscamp-base-FrancoYoung",
-  "commit": "364eb0a0c3680f10fb15775950220803c892e889",
-  "score": 0,
+  "commit": "340c9d59d8fa341b2d4ac53ce2970a38bb126930",
+  "score": 3,
   "totalScore": 100,
   "exercises": [
     {
       "name": "thread_spawn",
       "max": 3,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 3,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "mutex_counter",
@@ -176,9 +176,9 @@
     }
   ],
   "student": "FrancoYoung",
-  "runId": "39931776854",
+  "runId": "39958755404",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
