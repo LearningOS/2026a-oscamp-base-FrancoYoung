@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2074,
   "repository": "LearningOS/2026a-oscamp-base-FrancoYoung",
-  "commit": "a854ccd769c90a2b388b3720258974cf05477df0",
-  "score": 47,
+  "commit": "e72b1cbf43e1784d8f76617391023f4170aaade7",
+  "score": 55,
   "totalScore": 100,
   "exercises": [
     {
@@ -86,16 +86,16 @@
     {
       "name": "spinlock",
       "max": 4,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 4,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "spinlock_guard",
       "max": 4,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 4,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "rwlock",
@@ -176,9 +176,9 @@
     }
   ],
   "student": "FrancoYoung",
-  "runId": "40465617435",
+  "runId": "40641676867",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
