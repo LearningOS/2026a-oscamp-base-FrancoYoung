@@ -30,12 +30,17 @@ use std::cell::UnsafeCell;
 use std::ops::{Deref, DerefMut};
 use std::sync::atomic::{AtomicU32, Ordering};
 
-/// Maximum number of concurrent readers (fits in state bits).
-const READER_MASK: u32 = (1 << 30) - 1;
-/// Bit set when a writer holds the lock.
-const WRITER_HOLDING: u32 = 1 << 30;
-/// Bit set when at least one writer is waiting (writer-priority: block new readers).
-const WRITER_WAITING: u32 = 1 << 31;
+// 低 15 位：读者数量
+const READER_MASK: u32 = (1 << 15) - 1;
+
+// 中间计数字段每增加一个等待写者的增量
+const WRITER_ONE: u32 = 1 << 15;
+
+// 最高位：写者持有标志
+const WRITER_HOLDING: u32 = 1 << 31;
+
+// 中间 16 位：等待写者数量的掩码
+const WRITER_WAITING: u32 = !(READER_MASK | WRITER_HOLDING);
 
 /// Writer-priority read-write lock. Implemented from scratch; does not use `std::sync::RwLock`.
 pub struct RwLock<T> {
@@ -63,7 +68,21 @@ impl<T> RwLock<T> {
     /// 4. Try compare_exchange(s, s + 1, AcqRel, Acquire); on success return RwLockReadGuard { lock: self }.
     pub fn read(&self) -> RwLockReadGuard<'_, T> {
         // TODO
-        todo!()
+        loop{
+            let s = self.state.load(Ordering::Acquire);
+            if (s & (WRITER_HOLDING | WRITER_WAITING))!=0 {
+                core::hint::spin_loop();
+                continue;
+            }
+            if (s & READER_MASK) == READER_MASK{
+                core::hint::spin_loop();
+                continue;
+            }
+            match self.state.compare_exchange(s, s+1, Ordering::AcqRel, Ordering::Acquire){
+                Ok(_)=>{return RwLockReadGuard { lock: self };},
+                Err(_)=>{core::hint::spin_loop();},
+            }
+        }
     }
 
     /// Acquire the write lock. Blocks until no readers and no other writer.
@@ -75,7 +94,29 @@ impl<T> RwLock<T> {
     /// 4. On success return RwLockWriteGuard { lock: self }.
     pub fn write(&self) -> RwLockWriteGuard<'_, T> {
         // TODO
-        todo!()
+        loop {
+            let s = self.state.load(Ordering::Acquire);
+            if (s & WRITER_WAITING) == WRITER_WAITING {
+                core::hint::spin_loop();
+                continue;
+            }
+            match self.state.compare_exchange(s, s+WRITER_ONE, Ordering::AcqRel, Ordering::Acquire){
+                Ok(_)=>{break ;}
+                Err(_)=>{continue;}
+            }
+        }
+        loop{
+            let s = self.state.load(Ordering::Acquire);
+            if (s & (READER_MASK | WRITER_HOLDING))!=0{
+                std::hint::spin_loop();
+                continue;
+            }
+            let next = (s - WRITER_ONE) | WRITER_HOLDING;
+            match self.state.compare_exchange(s, next, Ordering::AcqRel, Ordering::Acquire){
+                Ok(_)=>{return RwLockWriteGuard { lock: self };}
+                Err(_)=>{core::hint::spin_loop();}
+            }
+        }
     }
 }
 
@@ -90,7 +131,7 @@ impl<T> Deref for RwLockReadGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
-        todo!()
+        unsafe{&*self.lock.data.get()}
     }
 }
 
@@ -98,7 +139,7 @@ impl<T> Deref for RwLockReadGuard<'_, T> {
 // Decrement reader count: self.lock.state.fetch_sub(1, Ordering::Release)
 impl<T> Drop for RwLockReadGuard<'_, T> {
     fn drop(&mut self) {
-        todo!()
+        self.lock.state.fetch_sub(1, Ordering::Release);
     }
 }
 
@@ -113,7 +154,7 @@ impl<T> Deref for RwLockWriteGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
-        todo!()
+        unsafe{&*self.lock.data.get()}
     }
 }
 
@@ -121,7 +162,7 @@ impl<T> Deref for RwLockWriteGuard<'_, T> {
 // Return mutable reference: unsafe { &mut *self.lock.data.get() }
 impl<T> DerefMut for RwLockWriteGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut T {
-        todo!()
+        unsafe{&mut*self.lock.data.get()}
     }
 }
 
@@ -129,7 +170,7 @@ impl<T> DerefMut for RwLockWriteGuard<'_, T> {
 // Clear writer bits so lock is free: self.lock.state.fetch_and(!(WRITER_HOLDING | WRITER_WAITING), Ordering::Release)
 impl<T> Drop for RwLockWriteGuard<'_, T> {
     fn drop(&mut self) {
-        todo!()
+        self.lock.state.fetch_and(!WRITER_HOLDING, Ordering::Release);
     }
 }
 
