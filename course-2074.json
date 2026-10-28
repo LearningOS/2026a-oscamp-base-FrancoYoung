@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2074,
   "repository": "LearningOS/2026a-oscamp-base-FrancoYoung",
-  "commit": "e72b1cbf43e1784d8f76617391023f4170aaade7",
-  "score": 55,
+  "commit": "d6631043eb76110435332e2c9408722bd18f3c47",
+  "score": 60,
   "totalScore": 100,
   "exercises": [
     {
@@ -100,9 +100,9 @@
     {
       "name": "rwlock",
       "max": 5,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 5,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "stack_coroutine",
@@ -176,9 +176,9 @@
     }
   ],
   "student": "FrancoYoung",
-  "runId": "40641676867",
+  "runId": "40681965470",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
