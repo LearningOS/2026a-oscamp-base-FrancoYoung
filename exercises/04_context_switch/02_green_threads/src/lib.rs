@@ -168,7 +168,7 @@ impl Scheduler {
                 break;
             }
 
-            self.schedule_next;
+            self.schedule_next();
         }
         unsafe {
             SCHEDULER = std::ptr::null_mut();
