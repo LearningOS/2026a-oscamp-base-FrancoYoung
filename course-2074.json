@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2074,
   "repository": "LearningOS/2026a-oscamp-base-FrancoYoung",
-  "commit": "1437ccadf0cfdb0d434a4ee424d3a24395d01c7b",
-  "score": 66,
+  "commit": "446c459a9167757491932e520d75a551a66c36c6",
+  "score": 72,
   "totalScore": 100,
   "exercises": [
     {
@@ -114,9 +114,9 @@
     {
       "name": "green_threads",
       "max": 6,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 6,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "basic_future",
@@ -176,9 +176,9 @@
     }
   ],
   "student": "FrancoYoung",
-  "runId": "41031286587",
+  "runId": "41032843811",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
