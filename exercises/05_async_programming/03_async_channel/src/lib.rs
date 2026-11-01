@@ -7,6 +7,9 @@
 //! - Async `send` and `recv`
 //! - Channel closing mechanism (receiver returns None after all senders are dropped)
 
+use core::panic::PanicMessage;
+use std::{result, thread::spawn};
+
 use tokio::sync::mpsc;
 
 /// Async producer-consumer:
@@ -19,7 +22,22 @@ pub async fn producer_consumer(items: Vec<String>) -> Vec<String> {
     // TODO: Spawn producer task: iterate through items, send each one
     // TODO: Spawn consumer task: loop recv until channel closes, collect results
     // TODO: Wait for consumer to complete and return results
-    todo!()
+    let capacity = items.len().max(1);
+    let (tx,mut rx) = mpsc::channel(capacity);
+    let producer_handle = tokio::spawn(async move {
+        for item in items {
+            tx.send(item).await.unwrap()
+        }
+    });
+    let consumer_handle = tokio::spawn(async move {
+        let mut result = Vec::new();
+        while let Some(message) = rx.recv().await{
+            result.push(message);
+        }
+        result
+    });
+    producer_handle.await.unwrap();
+    consumer_handle.await.unwrap()
 }
 
 /// Fan‑in pattern: multiple producers, one consumer.
@@ -31,7 +49,28 @@ pub async fn fan_in(n_producers: usize) -> Vec<String> {
     //       Each sends format!("producer {id}: message")
     // TODO: Drop the original sender (important! otherwise channel won't close)
     // TODO: Consumer loops receiving, collects and sorts
-    todo!()
+    let (tx,mut rx) = mpsc::channel(n_producers.max(1));
+    let mut handles = Vec::new();
+    for id in 0..n_producers {
+        let txx = tx.clone();
+        let producer_handle = tokio::spawn(async move{
+            txx.send(format!("producer {id}: message")).await.unwrap();
+        });
+        handles.push(producer_handle);
+    }
+    drop(tx);
+    let consumer_handle = tokio::spawn(async move{
+        let mut result = Vec::new();
+        while let Some(message) = rx.recv().await {
+            result.push(message);
+        }
+        result.sort();
+        result
+    });
+    for handle in handles {
+        handle.await.unwrap();
+    }
+    consumer_handle.await.unwrap()
 }
 
 #[cfg(test)]
