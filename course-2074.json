@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2074,
   "repository": "LearningOS/2026a-oscamp-base-FrancoYoung",
-  "commit": "19486d799d2db1528e3816ad328b5d2a2a2d6c41",
-  "score": 97,
+  "commit": "69fec728feeba835224b468c0ae7cccad6665091",
+  "score": 100,
   "totalScore": 100,
   "exercises": [
     {
@@ -170,15 +170,15 @@
     {
       "name": "tlb_sim",
       "max": 3,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 101
+      "score": 3,
+      "status": "pass",
+      "exitCode": 0
     }
   ],
   "student": "FrancoYoung",
-  "runId": "41614412989",
+  "runId": "41636384122",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
